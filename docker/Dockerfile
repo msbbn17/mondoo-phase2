@@ -4,7 +4,7 @@ ARG RELEASE_TAG
 
 RUN apk add --no-cache curl tar
 
-ENV ASSET_URL=https://github.com/msbbn17/mondoo-phase1/releases/download/${RELEASE_TAG}/mondoo-challenge-${RELEASE_TAG}-linux-amd64.tar.gz
+ENV ASSET_URL=https://github.com/msbbn17/mondoo-phase1/releases/download/${RELEASE_TAG}/mondoo-phase1-${RELEASE_TAG}-linux-amd64.tar.gz
 
 WORKDIR /app
 
