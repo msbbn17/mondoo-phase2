@@ -8,7 +8,7 @@ ENV ASSET_URL=https://github.com/msbbn17/mondoo-phase1/releases/download/${RELEA
 
 WORKDIR /app
 
-RUN curl -L $ASSET_URL -o mondoo-webserver.tar.gz && tar -xzf mondoo-webserver.tar.gz && mv mondoo-challenge /app/mondoo-webserver && chmod +x /app/mondoo-webserver
+RUN curl -L $ASSET_URL -o mondoo-webserver.tar.gz && tar -xzf mondoo-webserver.tar.gz && mv mondoo-phase1 /app/mondoo-webserver && chmod +x /app/mondoo-webserver
 FROM --platform=linux/amd64 alpine:latest
 
 RUN apk add --no-cache libc6-compat
