@@ -60,4 +60,4 @@ jobs:
             bash -c "$(curl -sSL https://install.mondoo.com/sh)"
     - name: Scan Dockerfile with cnspec
       run: |
-            cnspec scan docker file Dockerfile --policy-bundle mondoo-challenge-policy.yml --incognito --score-threshold 100
+            cnspec scan docker file docker/Dockerfile --policy-bundle mondoo-challenge-policy.yml --incognito --score-threshold 100
