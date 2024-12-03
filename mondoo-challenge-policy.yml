@@ -1,0 +1,25 @@
+policies:
+  - uid: my-mondoo-policy
+    name: my Mondoo policy
+    version: 1.0.0
+    groups:
+        - title: Docker Container Security
+          filters: |
+              asset.platform == "dockerfile"
+          checks:
+              - uid: mondoo-webserver-exposed-port
+              - uid: mondoo-dockerfile-binary-check
+              
+queries:
+  - uid: mondoo-webserver-exposed-port
+    title: check if the port for the web service is exposed
+    impact: 100
+    mql: |
+      findFirstStage = docker.file.stages[0].from.image
+      docker.file.stages.where(from.image != findFirstStage).all(expose.all(port == 8080))
+  - uid: mondoo-dockerfile-binary-check
+    title: Check if the dockerfile has the binary in the right place
+    impact: 100
+    mql: |
+      findFirstStage = docker.file.stages[0].from.image
+      docker.file.stages.where(from.image != findFirstStage).all(copy.all(dst == "/app/mondoo-webserver"))

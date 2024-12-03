@@ -1,0 +1,63 @@
+name: Docker Pipeline
+
+on:
+  repository_dispatch:
+    types: [trigger-docker-build]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Use Release Tag
+        run: |
+          echo "Received release tag: ${{ github.event.client_payload.release_tag }}"
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ghcr.io/msbbn17/mondoo-phase2:${{ github.event.client_payload.release_tag }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            RELEASE_TAG=${{ github.event.client_payload.release_tag }}
+
+  cnspec-scan-dockerfile:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repository
+      uses: actions/checkout@v3
+    - name: Install cnspec
+      run: |
+            bash -c "$(curl -sSL https://install.mondoo.com/sh)"
+    - name: Scan Dockerfile with cnspec
+      run: |
+            cnspec scan docker file Dockerfile --policy-bundle mondoo-challenge-policy.yml --incognito --score-threshold 100
